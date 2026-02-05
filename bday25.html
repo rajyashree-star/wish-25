@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Birthday — 21 Pilots Theme</title>
+  <style>
+    :root{
+      --bg:#0b0b0b; /* deep black */
+      --accent:#d92b2b; /* red */
+      --muted:#222;
+      --glass: rgba(255,255,255,0.04);
+      --card-radius:18px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;min-height:100%;
+      background:linear-gradient(180deg,var(--bg),#070707);
+      color:#eee;
+      /* display:flex;align-items:center;justify-content:center; */
+      padding:28px;
+      overflow: auto;
+    }
+    .page{
+      width:100%;max-width:1100px;border-radius:20px;
+      padding:28px;box-sizing:border-box;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow:0 10px 40px rgba(0,0,0,0.6);
+      position:relative;overflow:hidden;
+      border:1px solid rgba(255,255,255,0.03)
+    }
+    header{
+      display:flex;gap:20px;align-items:center;margin-bottom:18px;
+    }
+    .logo-wrap{
+      width:86px;height:86px;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:12px;border:1px solid rgba(255,255,255,0.04);
+    }
+    .logo-wrap img{max-width:70%;max-height:70%;filter:brightness(1.05);}
+    h1{font-size:34px;margin:0;letter-spacing:1px}
+    .subtitle{color:#bbb;font-size:14px;margin-top:6px}
+
+    .hero{display:flex;gap:28px;align-items:center}
+    .left{flex:1}
+    .card{
+      background:var(--glass);padding:22px;border-radius:16px;
+      border:1px solid rgba(255,255,255,0.03)
+    }
+
+    .big-msg{font-size:48px;line-height:1.02;margin:6px 0;
+      color:var(--accent);font-weight:700}
+    .small{color:#ccc}
+
+    .actions{margin-top:14px;display:flex;gap:12px}
+    .btn{padding:12px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:600}
+    .btn-play{background:var(--accent);color:#100;box-shadow:0 6px 18px rgba(217,43,43,0.18)}
+    .btn-theme{background:transparent;color:#ddd;border:1px solid rgba(255,255,255,0.06)}
+
+    .right{width:360px}
+    .poster{
+      height:420px;border-radius:14px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#060606, #0f0f0f);
+      border:2px solid rgba(217,43,43,0.12);
+      padding:18px;box-sizing:border-box
+    }
+    .poster h2{margin:0;font-size:22px;color:#fff}
+    .poster p{color:#d6d6d6;margin-top:6px}
+
+    /* confetti canvas occupies full page */
+    canvas#confetti{position:absolute;inset:0;pointer-events:none;z-index:30}
+
+    /* YouTube modal */
+    .modal {
+      position: relative;
+      inset: 0;
+      width: 100%;
+      aspect-ratio: 16/9;
+      margin-top: 20px;
+      display: none;
+      border: 1px solid red;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,0.75);
+      z-index: 50;
+    }
+    .modal.active { display: flex; }
+    .modal .frame {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      position: relative;
+    }
+    .modal .close {
+      position: absolute; top:10px; right:10px; z-index:60;
+      background: rgba(255,255,255,0.06); border:0; color:#fff; padding:8px 10px; cursor:pointer; border-radius:8px;
+    }
+
+    /* blessings overlay */
+    .blessings-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0.98));
+      color: #eee;
+      z-index: 60;
+      display: none;
+      overflow: auto;
+      padding: 36px;
+    }
+    .blessings-overlay.active { display: block; }
+    .blessings-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding: 22px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .blessings-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+    .blessings-header h2 { margin:0; color:var(--accent); }
+    .blessings-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 24px;
+      text-align: left;
+      counter-reset: item;
+    }
+    .blessings-grid li {
+      list-style: none;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .blessings-grid li::before {
+      counter-increment: item;
+      content: counter(item) ". ";
+      color: var(--accent);
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    /* responsive */
+    @media (max-width:1100px) {
+      .blessings-grid { grid-template-columns: repeat(2,1fr); }
+      .right{width:300px}
+    }
+    @media (max-width:700px){
+      .hero{flex-direction:column}
+      .right{width:100%}
+      .big-msg{font-size:36px}
+      .blessings-grid { grid-template-columns: repeat(1,1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div>
+
+    <div class="page" role="main">
+      <canvas id="confetti"></canvas>
+      <header>
+        <div class="logo-wrap">
+          <!-- Official-ish 21 Pilots logo from Wikimedia (keeps brand vibe). Replace if you want a local file. -->
+          <img id="bandLogo" src="https://media.canva.com/v2/image-resize/format:JPG/height:400/quality:92/uri:ifs%3A%2F%2FM%2F0cebf476-e012-4145-abcb-6a37b31337a7/watermark:F/width:400?csig=AAAAAAAAAAAAAAAAAAAAAP_jc1vZKZVlZmfrh_9tPftKMdUEOdfY1N7Z8bryO52w&exp=1770320101&osig=AAAAAAAAAAAAAAAAAAAAAH3NPKnnuW-zExfSFmt4m30fbHufsah919hXEKToYRSJ&signer=media-rpc&x-canva-quality=screen_3x" alt="logo" />
+        </div>
+        <div>
+          <h1>Happy 25th Birthday, Love</h1>
+        <div class="subtitle">A 21 Pilots — black & red tribute page (25th edition)</div>
+      </div>
+    </header>
+    
+    <section class="hero">
+      <div class="left">
+        <div class="card">
+          <div class="big-msg">To my favorite pilot — level 25</div>
+          <div class="small">I wanted something bold, raw, and a little dramatic — just like you. Click play to open the song, press celebrate for confetti, and open blessings for the full 25th list.</div>
+          
+          <div class="actions">
+            <button class="btn btn-play" id="playBtn">Play song</button>
+            <button class="btn btn-theme" id="confettiBtn">Celebrate</button>
+            <button class="btn btn-theme" id="downloadBtn">Download Blessings</button>
+            <a href="/maybe.html">
+              <button class="btn btn-theme" id="newReleaseBtn">New Release &#127928;</button>
+            </a>
+          </div>
+
+          <!-- YouTube modal -->
+          <div id="ytModal" class="modal" aria-hidden="true">
+            <div class="frame" id="ytFrameWrap">
+              <button class="close" id="closeYt">Close</button>
+              <!-- iframe gets injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <aside class="right">
+        <div class="poster card" style="padding: 20px;">
+          <h2>25 • HAPPY BIRTHDAY</h2>
+          <p>Black and red. Loud and proud. Love you forever.</p>
+          <div style="display: flex; justify-content: center; align-items: center; margin-top:18px;font-size:13px;color:#999;width:100%">
+            <img src="pratik.jpeg" style="width: inherit;object-fit: contain;"/>
+          </div>
+        </div>
+      </aside>
+    </section>
+    
+    <audio id="bgAudio" src="" preload="none"></audio>
+  </div>
+  
+  <!-- Blessings overlay -->
+  <div id="blessingsOverlay" class="blessings-overlay" aria-hidden="true">
+    <div class="blessings-inner">
+      <div class="blessings-header">
+        <h2>All 200 Blessings for your 25th</h2>
+        <div>
+          <button id="closeBless" class="btn btn-theme">Close</button>
+        </div>
+      </div>
+      <p style="color:#bbb;margin:0 0 12px 0">Left aligned, 4 columns — numbered. Scroll to view all.</p>
+      <ol class="blessings-grid" id="blessingsGrid" style="margin:0;padding:0;list-style:none;"></ol>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ------------------- Confetti system (black + red, top-blast) -------------------
+(function(){
+  const c = document.getElementById('confetti');
+  const ctx = c.getContext('2d');
+  let W=0, H=0, pieces = [];
+  function resize(){ W = c.width = innerWidth; H = c.height = innerHeight; }
+  addEventListener('resize', resize); resize();
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function makePiece(topOnly){
+    const colors = [getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d92b2b', '#000000'];
+    return {
+      x: rand(0, W),
+      y: topOnly ? rand(-50, -10) : rand(-10, H),
+      vx: rand(-3, 3),
+      vy: rand(2, 8),
+      size: rand(6, 14),
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rot: rand(0, Math.PI*2),
+      vr: rand(-0.08, 0.08)
+    };
+  }
+
+  function step(){
+    ctx.clearRect(0,0,W,H);
+    for(let i = pieces.length - 1; i >= 0; i--){
+      const p = pieces[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.06; // gravity
+      p.rot += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+      ctx.restore();
+      if(p.y > H + 40 || p.x < -50 || p.x > W + 50) pieces.splice(i, 1);
+    }
+    requestAnimationFrame(step);
+  }
+  step();
+
+  // top-blast confetti: generate many pieces with y negative
+  window.launchConfettiTop = function(count){
+    for(let i=0;i<count;i++) pieces.push(makePiece(true));
+  };
+  // gentle sprinkle
+  window.sprinkleConfetti = function(count){
+    for(let i=0;i<count;i++) pieces.push(makePiece(false));
+  };
+})();
+
+// ------------------- Buttons and YouTube embed -------------------
+const playBtn = document.getElementById('playBtn');
+const confettiBtn = document.getElementById('confettiBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const ytModal = document.getElementById('ytModal');
+const ytFrameWrap = document.getElementById('ytFrameWrap');
+const closeYt = document.getElementById('closeYt');
+
+playBtn.addEventListener('click', ()=> {
+  // Open modal and inject YouTube embed (autoplay)
+  ytModal.classList.add('active');
+  ytModal.setAttribute('aria-hidden','false');
+  ytFrameWrap.insertAdjacentHTML('beforeend', '<iframe id="ytIframe" width="100%" height="100%" src="https://www.youtube.com/embed/nky4me4NP70?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>');
+});
+
+closeYt.addEventListener('click', ()=> {
+  ytModal.classList.remove('active');
+  ytModal.setAttribute('aria-hidden','true');
+  const ifr = document.getElementById('ytIframe');
+  if(ifr) ifr.remove();
+});
+
+ytModal.addEventListener('click', (e) => {
+  if(e.target === ytModal) { closeYt.click(); }
+});
+
+// ------------------- Confetti blast -------------------
+confettiBtn.addEventListener('click', ()=> {
+  // big strong top blast
+  window.launchConfettiTop(300);
+  // a little sprinkle after
+  setTimeout(()=> window.sprinkleConfetti(80), 200);
+});
+
+// ------------------- Blessings overlay: populate 200 items -------------------
+const blessingsOverlay = document.getElementById('blessingsOverlay');
+const blessingsGrid = document.getElementById('blessingsGrid');
+const closeBless = document.getElementById('closeBless');
+
+// raw block: include the long list you supplied (keeps exact phrasing). 
+// We'll split by newlines and filter. Then auto-generate additional short blessings until 200.
+const rawBlock = `
+Australia Visa granted.
+New powerful bike acquired.
+Car License successfully obtained.
+Perfectly fitting baggy pants discovered.
+Old Money outfit aesthetic perfected.
+More challenging trekking adventures completed.
+Marriage with Razzi celebrated.
+Significant salary increment and career growth secured.
+New, loving, and loyal friends made.
+Continuous vibrant health maintained.
+Full personal freedom realized.
+Deeper bonding with family achieved.
+Promotion to leadership role secured.
+New profitable side hustle launched.
+Investment portfolio consistently growing.
+Mastery of a new professional skill achieved.
+Successful negotiation of a major deal.
+Zero credit card debt realized.
+Industry recognition award received.
+Streamlined, efficient daily workflow.
+Mentorship from a key industry leader.
+Perfect work-life balance maintained.
+Successful professional collaboration finalized.
+Unexpected financial bonus received.
+Absolute clarity on long-term career goals.
+Major public speaking opportunity secured.
+Confident personal brand established.
+Spontaneous international trip taken.
+Challenging backpacking trip successfully executed.
+New extreme sport mastered.
+Sunrise witnessed from a mountain peak.
+Deeply restful camping trip completed.
+Epic road trip with Razzi enjoyed.
+Scuba or diving certification earned.
+Hidden local gems and spots discovered.
+Fear of heights permanently overcome.
+First-class travel upgrade received.
+A new continent successfully explored.
+Navigational skills sharpened and tested.
+Perfect summer vacation booked.
+Major bucket list activity checked off.
+Ability to pack light mastered.
+Consistency in daily meditation practice.
+Fluency in a new language initiated.
+Daily journal habit firmly established.
+A classic, challenging book series finished.
+Personal creative writing project completed.
+Guitar skills visibly and measurably improved.
+Cooking mastery of a signature dish.
+Waking up early feeling fully energized.
+Excellent public speaking confidence found.
+Habit of procrastination permanently eliminated.
+A demanding physical challenge finished successfully.
+Deep, restful sleep consistently enjoyed.
+Personal boundaries strongly and calmly maintained.
+Patience and calm found in stressful situations.
+Ability to truly listen enhanced.
+Successful completion of a large personal project.
+Quick, informed decision-making skills developed.
+Financial discipline fully ingrained.
+Complete forgiveness of past mistakes achieved.
+Positive self-talk adopted daily.
+Weekly dedicated date night with Razzi.
+Meaningful connection with an old friend rekindled.
+New shared hobby with Razzi started.
+Powerful, supportive relationship system established.
+Conflict resolution skills perfected.
+Increased emotional intimacy in all relationships.
+Successful long-distance friendships maintained.
+A successful surprise family reunion organized.
+Becoming a respected mentor to someone younger.
+Offering unexpected kindness to a stranger daily.
+Receiving genuine, heartfelt compliments regularly.
+Shared, deep laughter every single day.
+The comfort of being fully understood.
+Creating unforgettable new memories with loved ones.
+Successfully hosting friends and family.
+Gaining Razzi's family's deep respect.
+A beautiful, heartfelt letter written.
+Being a stable source of peace for others.
+Surprising Razzi with the perfect, thoughtful gift.
+Clear, open, and honest communication with Razzi.
+Perfectly designed home workspace created.
+High-quality, durable new watch purchased.
+Apartment successfully and fully decluttered.
+Smart home technology implemented seamlessly.
+Perfect home coffee setup acquired.
+Front-row concert tickets secured easily.
+Lightning-fast internet access always available.
+Ideal gaming setup realized.
+Comfortable, high-quality mattress purchased.
+Home cooking station substantially upgraded.
+Inner peace found even in chaos.
+Fear of failure replaced by curiosity.
+Healthy gut flora consistently maintained.
+Consistent, high energy levels sustained.
+Minimal screen time achieved daily.
+Strong immunity maintained all year long.
+Body acceptance and self-love deepened.
+Reduced social media comparison mindset.
+Clarity of life purpose fully realized.
+Daily dose of Vitamin D soaked up naturally.
+Learning to say 'no' effectively and without guilt.
+Complete emotional regulation achieved.
+End to all self-sabotage patterns.
+A new favorite band/song discovered.
+Feeling totally centered and grounded.
+Quick recovery from any setbacks.
+Greatly increased feelings of daily gratitude.
+Ability to forgive self easily.
+Zero lingering worries or anxieties.
+The daily feeling of being truly alive and present.
+`;
+
+// parse block into initial array
+let items = rawBlock.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+
+// the user asked for more, and specified keypoints: traveling, cooking, buying latest jackets, respect everywhere, more followers on tiktok, big savings for our home.
+// We'll prepare a short-phrases pool focused on those themes and other "good life improvements" to reach 200 items.
+const extraPool = [
+  "More travel to hidden places",
+  "Mastering a signature jacket style",
+  "More followers on TikTok and genuine community",
+  "Big savings for our first home",
+  "Perfectly organized travel packing",
+  "Learning regional recipes and cooking them well",
+  "Buying the latest jacket you like",
+  "Earning respect in every room you enter",
+  "Consistent monthly savings habit",
+  "Frequent spontaneous weekend trips",
+  "Finding secret coffee shops to love",
+  "Learning to fix basic bike issues",
+  "Getting social media growth that feels real",
+  "A playlist that defines the year",
+  "A business idea that gains traction",
+  "Hosting cozy dinner parties",
+  "Collecting memorable travel snapshots",
+  "A new camera for better memories",
+  "Saving a specific down payment target",
+  "A capsule wardrobe with statement jackets",
+  "Cooking a perfect breakfast every weekend",
+  "Learning barista-level coffee at home",
+  "A steady freelance income stream",
+  "Local weekend market discoveries",
+  "Daily 20-minute walk habit",
+  "An inspiring morning routine",
+  "Perfectly curated travel itinerary",
+  "A jacket that becomes your signature",
+  "Reaching a new follower milestone on social platforms",
+  "A travel fund that grows monthly",
+  "Cooking a whole menu from scratch",
+  "Becoming someone people look up to",
+  "Receiving standing ovation once",
+  "A peaceful reading corner created",
+  "Connecting with an industry mentor regularly",
+  "A small but thriving investment win",
+  "A surprise trip planned by Razzi",
+  "Finding a perfect local hike",
+  "Curating a capsule jacket collection",
+  "Inviting friends over for a themed dinner",
+  "A viral, wholesome TikTok moment",
+  "First savings account target met",
+  "A perfectly brewed pour-over every morning",
+  "Monthly date nights kept sacred",
+  "A tiny garden of herbs at home",
+  "A jacket that fits like it was made for you",
+  "Respect and recognition at work",
+  "An efficient morning email routine",
+  "A clear five-year plan mapped out",
+  "A fast, simple breakfast routine mastered"
+];
+
+// add generated extras by combining pool variations until we reach 200
+let idx = 0;
+while(items.length < 200){
+  const base = extraPool[idx % extraPool.length];
+  const variation = (Math.floor(items.length/extraPool.length) + 1);
+  items.push(base + (variation > 1 ? ` (level ${variation})` : ''));
+  idx++;
+}
+
+// now create the 4-column left aligned rendering
+function openBlessings(){
+  blessingsGrid.innerHTML = ''; // clear
+  // render as a single ordered list (we'll use li with auto-numbering via CSS ::before)
+  items.forEach((text)=>{
+    const li = document.createElement('li');
+    li.textContent = text;
+    blessingsGrid.appendChild(li);
+  });
+  blessingsOverlay.classList.add('active');
+  blessingsOverlay.setAttribute('aria-hidden','false');
+  // scroll to top
+  blessingsOverlay.scrollTop = 0;
+}
+
+// when downloadBtn clicked, open overlay with the 4-column list
+downloadBtn.addEventListener('click', ()=> {
+  openBlessings();
+});
+
+// close overlay
+closeBless.addEventListener('click', ()=> {
+  blessingsOverlay.classList.remove('active');
+  blessingsOverlay.setAttribute('aria-hidden','true');
+});
+
+// click outside to close (on overlay background)
+blessingsOverlay.addEventListener('click', (e)=>{
+  const inner = document.querySelector('.blessings-inner');
+  if(!inner.contains(e.target)) {
+    blessingsOverlay.classList.remove('active');
+    blessingsOverlay.setAttribute('aria-hidden','true');
+  }
+});
+
+// small keyboard easter egg: press 2 then 5 to flash accent and confetti
+let keys='';
+window.addEventListener('keydown',e=>{
+  keys+=e.key;
+  if(keys.endsWith('25')){
+    document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.2)'}],{duration:400,iterations:1});
+    window.launchConfettiTop(200);
+    keys='';
+  }
+});
+</script>
+</body>
+</html>
