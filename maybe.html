@@ -7,11 +7,32 @@
   <style>
     body {
       margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: radial-gradient(circle at top, #000000, #1a1a1a);
       color: #ffffff;
       overflow-x: hidden;
       position: relative;
+    }
+
+    .main {
+      display: none;
+    }
+
+    .main.show {
+      display: block;
+    }
+
+    #playBtn {
+      outline: none;
+      color: white;
+      background-color: red;
+      border-radius: 5px;
+      font-size: 2.5em;
+      border: none;
     }
 
     /* Container for floating elements */
@@ -24,6 +45,16 @@
       pointer-events: none;
       overflow: hidden;
       z-index: 0;
+    }
+
+    .play-button-container {
+      position: fixed;
+      inset: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 99;
+      pointer-events: none;
+      overflow: hidden;
     }
 
     .music-note {
@@ -157,6 +188,14 @@
       animation: rotateLogo 10s linear infinite;
     }
 
+    .play-button {
+      position: relative;
+    }
+
+    .main.show + .play-button {
+      display: none;
+    }
+
     @keyframes rotateLogo {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -195,57 +234,86 @@
   </style>
 </head>
 <body>
-  <div class="music-container" id="musicContainer"></div>
-  <div class="container">
-    <div class="card">
-      <div class="logo">||-//</div>
+  <audio controls id="hbdAudio" hidden>
+  <source src="wish.mp3" type="audio/mp3" />
+</audio>
+  <div id="container" class="main">
 
-      <h1>Happy <span>Birthday</span></h1>
-      <h2>Welcome to your Twenty Five Pilots era</h2>
 
-      <div class="red-line"></div>
-
-      <p class="message">
-        Happy 25th birthday, my love. From the very first moment we talked, you brought a sense of calm into my life. No drama, just peace, and even on heavy days, you make everything feel lighter.
-
-Life hasn’t been easy for me, yet you chose to stay, showing patience, care, and belief in me when I struggled to believe in myself. This is your second birthday since we started dating, and no matter how small the celebration is, I hope we always cherish our love because birthdays are special with you.
-
-Happy birthday to the one who makes my ordinary days brighter and my hardest days easier. I wish you peace, strength, and happiness this year, and I hope every quiet dream you hold comes true.
-      </p>
-
-      <p class="lyrics">
-        "HAPPY BIRTHDAY MY LOVE."
-      </p>
-
-      <p class="message">
-        I love how deeply in love we are and how silly we can be together, acting like kids, playing random games, and laughing at nothing. I may not always be okay, but please stay with me as much as you can. Like a Twenty One Pilots song, it’s about holding on and choosing each other through the noise.
-        I see a future with you, and I love you endlessly, today and always. 
-      </p>
-
-      <div class="red-line"></div>
-
-      <p class="footer">
-        A birthday message inspired by your Twenty Two Pilotni<br />
-        Ji Chanta Matina Yana ❤️
-      </p>
+    <div class="music-container" id="musicContainer"></div>
+    <div class="container">
+      <div class="card">
+        <div class="logo">||-//</div>
+        
+        <h1>Happy <span>Birthday</span></h1>
+        <h2>Welcome to your Twenty Five Pilots era</h2>
+        
+        <div class="red-line"></div>
+        
+        <p class="message">
+          Happy 25th birthday, my love. From the very first moment we talked, you brought a sense of calm into my life. No drama, just peace, and even on heavy days, you make everything feel lighter.
+          
+          Life hasn’t been easy for me, yet you chose to stay, showing patience, care, and belief in me when I struggled to believe in myself. This is your second birthday since we started dating, and no matter how small the celebration is, I hope we always cherish our love because birthdays are special with you.
+          
+          Happy birthday to the one who makes my ordinary days brighter and my hardest days easier. I wish you peace, strength, and happiness this year, and I hope every quiet dream you hold comes true.
+        </p>
+        
+        <p class="lyrics">
+          "HAPPY BIRTHDAY MY LOVE."
+        </p>
+        
+        <p class="message">
+          I love how deeply in love we are and how silly we can be together, acting like kids, playing random games, and laughing at nothing. I may not always be okay, but please stay with me as much as you can. Like a Twenty One Pilots song, it’s about holding on and choosing each other through the noise.
+          I see a future with you, and I love you endlessly, today and always. 
+        </p>
+        
+        <div class="red-line"></div>
+        
+        <p class="footer">
+          A birthday message inspired by your Twenty Two Pilotni<br />
+          Ji Chanta Matina Yana ❤️
+        </p>
+      </div>
     </div>
-  </div>
+    
+    <script>
+      const container = document.getElementById('container');
+      const musicContainer = document.getElementById('musicContainer');
+      const notes = ['🎵','🎶','🎼']; // fewer emojis
+      
+      function createNote(target, onComplete = () => {}) {
+        const note = document.createElement('div');
+        note.className = 'music-note';
+        note.innerText = notes[Math.floor(Math.random() * notes.length)];
+        note.style.left = Math.random() * 100 + 'vw';
+        note.style.animationDuration = 6 + Math.random() * 6 + 's';
+        target.appendChild(note);
+        setTimeout(() => {
+          note.remove();
+          onComplete()
+        }, 12000);
+      }
+      </script>
+</div>
+<div class="play-button">
+  <div class="play-button-container" id="playButtonContainer"></div>
+  <button id="playBtn">Click here</button>
+</div>
+<script>
+  const hbdAudio = document.getElementById('hbdAudio');
+const playBtn = document.getElementById('playBtn');
+const playButtonContainer = document.getElementById('playButtonContainer');
 
-  <script>
-    const musicContainer = document.getElementById('musicContainer');
-    const notes = ['🎵','🎶','🎼']; // fewer emojis
+playBtn.addEventListener('click', ()=>{
+  container.classList.add('show');
+  setInterval(createNote, 1000, musicContainer); // slower, less frequent
+  hbdAudio.play().catch(e => console.error("Audio play failed:", e));
+});
 
-    function createNote() {
-      const note = document.createElement('div');
-      note.className = 'music-note';
-      note.innerText = notes[Math.floor(Math.random() * notes.length)];
-      note.style.left = Math.random() * 100 + 'vw';
-      note.style.animationDuration = 6 + Math.random() * 6 + 's';
-      musicContainer.appendChild(note);
-      setTimeout(() => note.remove(), 12000);
-    }
-
-    setInterval(createNote, 1000); // slower, less frequent
-  </script>
+for (let index = 0; index < 20; index++) {
+  const fn = () => createNote(playButtonContainer,fn)
+  setTimeout(createNote, index*100, playButtonContainer, fn)
+}
+</script>
 </body>
 </html>
