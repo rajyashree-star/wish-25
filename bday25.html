@@ -45,7 +45,7 @@
     .hero{display:flex;gap:28px;align-items:center}
     .left{flex:1}
     .card{
-      background:var(--glass);padding:22px;border-radius:16px;
+      background:var(--glass);padding:12px;border-radius:16px;
       border:1px solid rgba(255,255,255,0.03)
     }
 
@@ -53,7 +53,7 @@
       color:var(--accent);font-weight:700}
     .small{color:#ccc}
 
-    .actions{margin-top:14px;display:flex;gap:12px}
+    .actions{margin-top:14px;display:flex;gap:12px; flex-wrap: wrap; justify-content: space-evenly;}
     .btn{padding:12px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:600}
     .btn-play{background:var(--accent);color:#100;box-shadow:0 6px 18px rgba(217,43,43,0.18)}
     .btn-theme{background:transparent;color:#ddd;border:1px solid rgba(255,255,255,0.06)}
@@ -223,7 +223,6 @@ Happy 25th, my pilot.</div>
           <button id="closeBless" class="btn btn-theme">Close</button>
         </div>
       </div>
-      <p style="color:#bbb;margin:0 0 12px 0">Left aligned, 4 columns — numbered. Scroll to view all.</p>
       <ol class="blessings-grid" id="blessingsGrid" style="margin:0;padding:0;list-style:none;"></ol>
     </div>
   </div>
@@ -503,7 +502,7 @@ let idx = 0;
 while(items.length < 200){
   const base = extraPool[idx % extraPool.length];
   const variation = (Math.floor(items.length/extraPool.length) + 1);
-  items.push(base + (variation > 1 ? ` (level ${variation})` : ''));
+  items.push(base + (variation > 1 ? `` : ''));
   idx++;
 }
 
